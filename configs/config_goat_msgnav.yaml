@@ -1,0 +1,76 @@
+seed: 1
+num_processes: 1
+num_eval_episodes: 360
+cuda: true
+sim_gpu_id: 0
+log_interval: 10
+dump_location: "./outputs/experiments/goat_msgnav_sensor/"
+experiment_id: "val_unseen_msgnav_sensor"
+# Save per-episode mp4 videos under visualization/videos.
+# For full 360-episode benchmark runs this is slower and uses much more disk,
+# but it is essential for debugging the GOAT adapter.
+visualize: 1
+environment: "habitat"
+
+# MSGNav sensor/body/metric protocol. Its native controller directly changes
+# pose; UniGoal still consumes Habitat discrete actions in this adapter.
+env_frame_width: 1280
+env_frame_height: 1280
+frame_width: 160
+frame_height: 160
+camera_height: 1.5
+# MSGNav does not configure a collision capsule because it sets poses on the
+# navmesh directly. These two values use the official GOAT Stretch body for
+# the required Habitat discrete-action adapter.
+agent_height: 1.41
+agent_radius: 0.17
+camera_tilt_deg: -30.0
+hfov: 120
+# MSGNav-style GOAT metric: final viewpoint geodesic distance < 0.25 m.
+success_dist: 0.25
+allow_sliding: true
+
+# Official GOAT discrete controller used by this adapter (MSGNav itself has no
+# turn/forward action parameters).
+turn_angle: 30
+forward_step_size: 0.25
+execution_model: "unigoal_discrete_msgnav_sensor_adapter"
+
+# Same discrete-action budget as the 0.88 m config so the sensor/body ablation
+# does not silently change the amount of interaction.
+subtask_budget_mode: "goat_discrete_actions"
+max_subtask_actions: 500
+max_episode_steps: 5000
+min_stop_step: 0
+arrival_reject_frontier_enabled: true
+arrival_reject_frontier_penalty: 3.0
+arrival_reject_frontier_radius_m: 2.0
+goat_metric_mode: "msgnav_geodesic"
+
+task_config: "tasks/goat_hm3d.yaml"
+goat_split: "val_unseen"
+goat_dataset_path: "data/datasets/goat_bench/hm3d/v1/{split}/{split}.json.gz"
+goat_scene_data_path: "data/scene_datasets/hm3d_v0.2/val"
+split: "val"
+
+min_depth: 0.0
+max_depth: 10.0
+
+num_local_steps: 40
+sem_pred_prob_thr: 0.50
+global_downscaling: 3
+vision_range: 100
+du_scale: 1
+cat_pred_threshold: 5.0
+map_pred_threshold: 1.0
+exp_pred_threshold: 1.0
+collision_threshold: 0.20
+
+num_sem_categories: 16
+map_size_cm: 3600
+map_resolution: 5
+
+llm_model: "llama2:7b"
+vlm_model: "llava:7b"
+api_key: "ollama"
+base_url: "http://localhost:11434/v1/"
